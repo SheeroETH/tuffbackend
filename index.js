@@ -57,9 +57,29 @@ const rateLimiter = (req, res, next) => {
 
 app.post('/api/generate', rateLimiter, async (req, res) => {
     try {
-        const { image } = req.body;
-        // Hardcoded prompt as requested
-        const prompt = "Create me a darkened black and white picture of this character with diamond grills for teeth and a diamond cross glowing and subtle white glowing eyes, the character should resemble sort of a silhouette figure. High contrast monochrome aesthetic, deep shadows, dramatic lighting, mysterious atmosphere, silhouette form with glowing elements, diamond grills sparkling, luminous cross pendant, ethereal white eye glow, noir style, cinematic black and white photography, ultra detailed, 8k";
+        const { image, modifiers } = req.body;
+
+        // Construct prompt based on modifiers
+        let featureDescription = "";
+        let featureKeywords = "";
+
+        const selectedMode = modifiers && modifiers.length > 0 ? modifiers[0] : null;
+
+        if (selectedMode === 'Cuban Chain') {
+            featureDescription = "wearing a thick cuban chain necklace";
+            featureKeywords = "cuban chain, silver link chain";
+        } else if (selectedMode === 'Cuban Chain + Diamond Cross') {
+            featureDescription = "wearing a thick cuban chain necklace with a large glowing diamond cross pendant";
+            featureKeywords = "cuban chain, diamond cross, glowing pendant, sparkling diamonds";
+        } else if (selectedMode === 'Teeth & Eyes') {
+            featureDescription = "featuring sparkling diamond grills for teeth and subtle white glowing eyes";
+            featureKeywords = "diamond grills, sparkling teeth, glowing white eyes, ethereal gaze";
+        } else if (selectedMode === 'Group') {
+            featureDescription = "wearing a thick cuban chain necklace with a large glowing diamond cross pendant, featuring sparkling diamond grills for teeth and subtle white glowing eyes";
+            featureKeywords = "cuban chain, diamond cross, glowing pendant, diamond grills, sparkling teeth, glowing white eyes";
+        }
+
+        const prompt = `Create me a darkened black and white picture of this character ${featureDescription}. The character should resemble sort of a silhouette figure. High contrast monochrome aesthetic, deep shadows, dramatic lighting, mysterious atmosphere, silhouette form with glowing elements, ${featureKeywords}, noir style, cinematic black and white photography, ultra detailed, 8k`;
 
         if (!image) return res.status(400).json({ error: 'Image is required' });
 
